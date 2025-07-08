@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import session from "express-session";
 import authRoutes from "./routes/authRoute";
 import passport from 'passport';
+import { Request, Response } from "express"
 
 import "./config/passport"; // important line 
 
@@ -37,6 +38,10 @@ app.use("/api/auth", authRoutes);
 
 app.use('/api', notesRoutes);
 
-const PORT : any = process.env.PORT || 3000;
+app.get("/check-health", async (req: Request, res: Response): Promise<any> => {
+  return res.status(200).json({ message: "app is running" })
+})
+
+const PORT: any = process.env.PORT || 3000;
 const HOST = "0.0.0.0";
 app.listen(PORT, HOST, () => console.log(`Server running on port ${PORT}`));
