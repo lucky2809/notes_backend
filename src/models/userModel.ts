@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface UserDocument extends Document {
   email: string;
   name?: string;
+  username?: string;
   googleId?: string;
   otp?: string | null;
   otpExpires?: Date | null;
@@ -13,6 +14,7 @@ export interface UserDocument extends Document {
 const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   name: String,
+  username: { type: String },
   googleId: String,
    otp: { type: String, default: null },           // 👈 allow null
   otpExpires: { type: Date, default: null },      // 👈 allow null
