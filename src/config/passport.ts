@@ -41,25 +41,24 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       callbackURL: process.env.GOOGLE_CALLBACK_URL!,
     },
-    async (_accessToken, _refreshToken, profile: Profile, done) => {
+    async (_accessToken, _refreshToken, profile, done) => {
       try {
         const existingUser = await User.findOne({ googleId: profile.id });
-        if (existingUser) {
-          return done(null, existingUser); // Login
-        }
+        if (existingUser) return done(null, existingUser);
 
-        // Register new user
         const user = await User.create({
           googleId: profile.id,
           email: profile.emails?.[0]?.value,
           name: profile.displayName,
-          username: profile.emails?.[0]?.value.split("@")[0] + "_" + Date.now(), // random username
+          username: profile.emails?.[0]?.value.split("@")[0] + "_" + Date.now(),
         });
 
         return done(null, user);
       } catch (error) {
-        return done(error as any, false); // Handle DB or other errors
+        console.error("Google Strategy Error:", error); // ✅ LOG ERROR HERE
+        return done(error as any, false);
       }
     }
   )
 );
+
