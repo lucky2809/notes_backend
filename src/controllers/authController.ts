@@ -59,7 +59,7 @@ export const handleGoogleCallback = async (req: Request, res: Response) => {
   const token = jwt.sign({ id: (req.user as any)._id }, process.env.JWT_SECRET!, {
     expiresIn: "7d",
   });
-  res.redirect(`http://localhost:5173/oauth-success?token=${token}`);
+  res.redirect(`${process.env.CLIENT_URL}/oauth-success?token=${token}`);
 };
 
 interface AuthRequestBody {
