@@ -38,7 +38,7 @@ export const createNotes = async (req: Request, res: Response) => {
 
 
 // Get all notes Api
-export const getNotes = async (req: Request, res: Response) => {
+export const getNotes = async (req: Request, res: Response) :Promise<any> =>  {
   try {
     const authHeader = req.headers.authorization || "";
     const token = authHeader.split(" ").pop();
@@ -52,16 +52,17 @@ export const getNotes = async (req: Request, res: Response) => {
     // filter by user_id
     const notes = await Notes.find({ user_id: id }) || [];
     res.status(200).json(notes);
-  } catch (err: unknown) {
-    let errorMessage = "Server error";
-
-    if (err instanceof Error) {
-      errorMessage = err.message;
+  } catch (err: any) {
+    if (
+      err.name === "JsonWebTokenError" || // malformed, invalid
+      err.name === "TokenExpiredError" || // expired
+      err.name === "NotBeforeError"       // used before active date
+    ) {
+      return res.status(401).json({ message: "Unauthorized: Invalid or expired token" });
     }
 
-    res.status(500).json({
-      message: errorMessage,
-    });
+    // Any other server errors
+    return res.status(500).json({ message: "Internal server error", error: err.message });
   }
 };
 
@@ -72,7 +73,7 @@ export const upNotes = async (req: Request, res: Response): Promise<any> => {
   const isVerified = await verifyTokenHelper(req, res)
 
   if (!isVerified) {
-   return res.status(401).json({ message: " Auth Error - token is invalid" })
+    return res.status(401).json({ message: " Auth Error - token is invalid" })
   }
   // const authHeader = req.headers.authorization || "";
   // const token = authHeader.split(" ").pop();
@@ -102,7 +103,7 @@ export const upNotes = async (req: Request, res: Response): Promise<any> => {
 
 
 // Delete Note Api
-export const deleteNote = async (req: Request, res: Response) : Promise<any> =>  {
+export const deleteNote = async (req: Request, res: Response): Promise<any> => {
   try {
     const isVerified = await verifyTokenHelper(req, res)
 
